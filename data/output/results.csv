@@ -1,0 +1,17 @@
+no,filename,device,specimen,side,ground_truth,pred_label,is_correct,mean_h,mean_s,mean_v,ratio_green,ratio_yellow,ratio_brown,area_pixels,area_ratio,elapsed_ms
+1,Realme_11_H11F1_Kanan_matang.jpg,Realme 11,H11F1,Kanan,Matang,Matang,True,25.97,177.91,87.8,0.0004,0.5374,0.3988,63859,0.1774,89.59
+2,Realme_11_H11F1_Kiri_matang.jpg,Realme 11,H11F1,Kiri,Matang,Matang,True,24.7,177.12,110.16,0.0003,0.6903,0.2498,61277,0.1702,86.09
+3,Realme_11_H11F2_Kanan_matang.jpg,Realme 11,H11F2,Kanan,Matang,Matang,True,26.0,170.99,89.98,0.0001,0.5634,0.3634,70691,0.1964,75.39
+4,Realme_11_H11F2_Kiri_matang.jpg,Realme 11,H11F2,Kiri,Matang,Matang,True,23.54,162.55,119.44,0.0008,0.7288,0.2287,75024,0.2084,73.89
+5,Realme_11_H15F1_Kanan_terlalu-matang.jpg,Realme 11,H15F1,Kanan,Terlalu Matang,Terlalu Matang,True,15.92,140.0,88.72,0.0,0.24,0.6861,58527,0.1626,73.06
+6,Realme_11_H15F1_Kiri_terlalu-matang.jpg,Realme 11,H15F1,Kiri,Terlalu Matang,Terlalu Matang,True,11.31,109.65,66.11,0.0,0.0123,0.8168,69000,0.1917,75.73
+7,Realme_11_H1F1_Kanan_mentah.jpg,Realme 11,H1F1,Kanan,Mentah,Mentah,True,40.17,195.4,79.42,0.9584,0.007,0.2324,93303,0.2592,80.47
+8,Realme_11_H1F1_Kiri_mentah.jpg,Realme 11,H1F1,Kiri,Mentah,Mentah,True,40.12,199.6,84.3,0.9678,0.0034,0.2313,91121,0.2531,82.55
+9,Realme_11_H1F2_Kanan_mentah.jpg,Realme 11,H1F2,Kanan,Mentah,Mentah,True,41.19,194.66,78.92,0.9826,0.0,0.291,68375,0.1899,73.93
+10,Realme_11_H1F2_Kiri_mentah.jpg,Realme 11,H1F2,Kiri,Mentah,Mentah,True,39.76,199.9,81.91,0.9479,0.0077,0.3003,71291,0.198,70.35
+11,Realme_12_H15F2_Kanan_terlalu-matang.jpg,Realme 12,H15F2,Kanan,Terlalu Matang,Terlalu Matang,True,17.92,161.56,103.74,0.0,0.3596,0.5124,51640,0.1434,64.1
+12,Realme_12_H15F2_Kiri_terlalu-matang.jpg,Realme 12,H15F2,Kiri,Terlalu Matang,Terlalu Matang,True,13.01,134.05,77.66,0.0,0.1017,0.7282,57449,0.1596,66.85
+13,Realme_14_H17F1_Kanan_busuk.jpg,Realme 14,H17F1,Kanan,Busuk,Busuk,True,8.32,105.8,62.25,0.0,0.0085,0.8129,52875,0.1469,76.93
+14,Realme_14_H17F1_Kiri_busuk.jpg,Realme 14,H17F1,Kiri,Busuk,Busuk,True,9.63,83.96,63.72,0.0,0.0459,0.7788,59209,0.1645,68.72
+15,Realme_14_H17F2_Kanan_busuk.jpg,Realme 14,H17F2,Kanan,Busuk,Busuk,True,9.05,97.13,58.73,0.0,0.0119,0.8145,52703,0.1464,70.13
+16,Realme_14_H17F2_Kiri_busuk.jpg,Realme 14,H17F2,Kiri,Busuk,Busuk,True,11.53,86.99,68.53,0.0,0.0588,0.7398,57757,0.1604,83.01
