@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="carbon">
+  <title>Dashboard Analisis Pengolahan Citra — Spesimen Kematangan Pisang</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces (Carbon) */
+      --background: #ffffff;
+      --surface-container-low: #f4f4f4;
+      --surface-container: #f4f4f4;
+      --surface-container-high: #e0e0e0;
+
+      /* Ink */
+      --on-surface: #161616;
+      --on-surface-variant: #525252;
+
+      /* Rules */
+      --outline: #8d8d8d;
+      --outline-variant: #e0e0e0;
+
+      /* Accents */
+      --primary: #0f62fe;
+      --primary-hover: #0353e9;
+      --on-primary: #ffffff;
+      --primary-container: #d0e2ff;
+      --on-primary-container: #161616;
+      --secondary: #6f6f6f;
+      --tertiary: #198038;
+      --error: #da1e28;
+      --on-error: #ffffff;
+
+      /* Data series */
+      --data-1: #0f62fe;
+      --data-2: #6929c4;
+      --data-3: #005d5d;
+      --data-4: #9f1853;
+      --data-context: #8d8d8d;
+
+      /* Fonts */
+      --font-headline: 'IBM Plex Sans', sans-serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --font-label: 'IBM Plex Mono', monospace;
+
+      /* Shape */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.25rem;
+      --rounded-full: 0.75rem;
+
+      /* Style effects */
+      --shadow-1: 0 2px 6px rgb(0 0 0 / 0.1);
+      --shadow-2: 0 4px 12px rgb(0 0 0 / 0.12);
+      --rule: 1px solid var(--outline-variant);
+      --field-rule: 1px solid var(--outline);
+      --indicator: 2px solid var(--primary);
+      --state-bar-width: 3px;
+
+      /* Shared semantic & state tokens */
+      --positive: #198038;
+      --positive-container: #defbe6;
+      --warning: #8a6300;
+      --warning-container: #fdf3cf;
+      --error-container: #fff1f1;
+      --focus: #0f62fe;
+
+      /* Condition swatch tokens (specimen stages) */
+      --stage-mentah: #24a148;
+      --stage-matang: #b28600;
+      --stage-terlalu-matang: #ba4e00;
+      --stage-busuk: #750e13;
+
+      /* Dashboard type scale */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      position: static !important;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1360px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .page-grid * {
+      min-width: 0;
+    }
+
+    /* Typography roles */
+    .label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--on-surface-variant);
+      font-weight: 500;
+      display: block;
+    }
+
+    .headline {
+      font-family: var(--font-headline);
+      font-weight: 300;
+      font-size: var(--display-size);
+      letter-spacing: 0;
+      line-height: 1.18;
+      margin: 0;
+      color: var(--on-surface);
+    }
+
+    .headline strong {
+      font-weight: 600;
+    }
+
+    .section-title {
+      font-family: var(--font-headline);
+      font-weight: 600;
+      font-size: var(--headline-size);
+      line-height: 1.25;
+      margin: 0;
+      color: var(--on-surface);
+    }
+
+    .subhead {
+      font-family: var(--font-headline);
+      font-weight: 600;
+      font-size: var(--subhead-size);
+      line-height: 1.3;
+      margin: 0;
+      color: var(--on-surface);
+    }
+
+    .helper-text {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    .mono-num {
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Header / Masthead */
+    .dash-header {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      padding-bottom: var(--space-lg);
+      border-bottom: var(--rule);
+    }
+
+    .dash-header-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+
+    .dash-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: center;
+      margin-top: var(--space-xs);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      height: 24px;
+      padding: 0 var(--space-sm);
+      border-radius: var(--rounded-full);
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+      font-family: var(--font-body);
+      font-size: var(--label-size);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .tag--neutral {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+
+    .tag--positive {
+      background-color: var(--positive-container);
+      color: var(--positive);
+    }
+
+    .tag--warning {
+      background-color: var(--warning-container);
+      color: var(--warning);
+    }
+
+    .tag--error {
+      background-color: var(--error-container);
+      color: var(--error);
+    }
+
+    /* Flat gray layers (Carbon treatment 1) */
+    .layer {
+      background-color: var(--surface-container);
+      border-radius: 0;
+      padding: var(--space-md);
+    }
+
+    .layer .layer {
+      background-color: var(--surface-container-high);
+    }
+
+    /* KPI Summary Grid (Asymmetric 5fr 5fr 3fr 3fr on wide screens) */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+
+    .kpi-card {
+      background-color: var(--surface-container);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      border-bottom: var(--rule);
+      container-type: inline-size;
+    }
+
+    .kpi-card--featured {
+      grid-column: span 4;
+      border-bottom: var(--indicator);
+    }
+
+    .kpi-card--support {
+      grid-column: span 2;
+    }
+
+    .kpi-method-name {
+      font-family: var(--font-headline);
+      font-weight: 600;
+      font-size: 1rem;
+      line-height: 1.3;
+      color: var(--on-surface);
+      margin: 0;
+    }
+
+    .kpi-metrics-pair {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-md);
+      padding-top: var(--space-xs);
+      border-top: var(--rule);
+    }
+
+    @container (max-width: 260px) {
+      .kpi-metrics-pair {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .key-value {
+      font-family: var(--font-label);
+      font-weight: 300;
+      font-size: clamp(1.625rem, 1.4rem + 0.8vw, 2rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--on-surface);
+    }
+
+    .key-value--accent {
+      color: var(--primary);
+    }
+
+    .key-value--positive {
+      color: var(--tertiary);
+    }
+
+    .kpi-sub-label {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      color: var(--on-surface-variant);
+      display: block;
+      margin-top: var(--space-xs);
+    }
+
+    .kpi-breakdown {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-xs);
+      padding-top: var(--space-sm);
+      border-top: var(--rule);
+    }
+
+    .kpi-mini-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .kpi-mini-stage {
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      color: var(--on-surface-variant);
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-mini-val {
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--on-surface);
+    }
+
+    /* Navigation / Global Controls Strip */
+    .control-strip {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      border-top: var(--rule);
+      border-bottom: var(--rule);
+      padding: var(--space-md) 0;
+    }
+
+    .tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      border-bottom: var(--rule);
+    }
+
+    .tab-btn {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: var(--space-sm) var(--space-md);
+      min-height: 44px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--on-surface-variant);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+
+    .tab-btn:hover {
+      background-color: var(--surface-container);
+      color: var(--on-surface);
+    }
+
+    .tab-btn.is-active {
+      border-bottom: var(--indicator);
+      font-weight: 600;
+      color: var(--on-surface);
+      background-color: var(--surface-container-low);
+    }
+
+    .global-filter-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 2fr) minmax(180px, 1.2fr) auto;
+      gap: var(--space-md);
+      align-items: end;
+    }
+
+    /* Carbon Inputs & Buttons */
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .field-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+      font-weight: 500;
+    }
+
+    .carbon-input,
+    .carbon-select {
+      width: 100%;
+      min-height: 44px;
+      background-color: var(--surface-container-low);
+      border: 0;
+      border-bottom: var(--field-rule);
+      border-radius: 0;
+      padding: 0 var(--space-md);
+      font-size: 0.9375rem;
+      color: var(--on-surface);
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+
+    .carbon-select {
+      padding-right: var(--space-xl);
+      cursor: pointer;
+    }
+
+    .carbon-input:hover,
+    .carbon-select:hover {
+      background-color: var(--surface-container-high);
+    }
+
+    .carbon-input:focus,
+    .carbon-select:focus {
+      outline: 2px solid var(--focus);
+      outline-offset: -2px;
+      background-color: var(--background);
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid transparent;
+      border-radius: 0;
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-lg) var(--space-sm) var(--space-md);
+      font-size: 0.875rem;
+      font-weight: 400;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: var(--space-sm);
+      white-space: nowrap;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+
+    .btn--primary {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .btn--primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn--secondary {
+      background-color: var(--background);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn--secondary:hover {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    .btn--ghost {
+      background-color: transparent;
+      color: var(--primary);
+      padding-right: var(--space-md);
+    }
+
+    .btn--ghost:hover {
+      background-color: var(--surface-container);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Analytical Workspace (Chart + Specimen/Inspector Split: 7fr + 5fr) */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-lg);
+      align-items: stretch;
+    }
+
+    .panel-box {
+      background-color: var(--surface-container);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .panel-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--rule);
+    }
+
+    .segmented-row {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .seg-btn {
+      appearance: none;
+      border: 1px solid var(--outline-variant);
+      background-color: var(--background);
+      color: var(--on-surface-variant);
+      min-height: 44px;
+      padding: 0 var(--space-md);
+      font-size: 0.8125rem;
+      font-family: var(--font-label);
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+
+    .seg-btn:hover {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+
+    .seg-btn.is-active {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      min-height: 330px;
+      height: 330px;
+      background-color: var(--background);
+      padding: var(--space-md);
+      border: var(--rule);
+    }
+
+    /* Specimen & Method Inspector */
+    .specimen-list {
+      display: flex;
+      flex-direction: column;
+      max-height: 320px;
+      overflow-y: auto;
+      background-color: var(--background);
+      border: var(--rule);
+    }
+
+    .specimen-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: var(--space-sm);
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule);
+      font-size: 0.8125rem;
+    }
+
+    .specimen-item:last-child {
+      border-bottom: 0;
+    }
+
+    .specimen-swatch {
+      width: 10px;
+      height: 28px;
+      display: block;
+    }
+
+    .swatch-mentah { background-color: var(--stage-mentah); }
+    .swatch-matang { background-color: var(--stage-matang); }
+    .swatch-terlalu-matang { background-color: var(--stage-terlalu-matang); }
+    .swatch-busuk { background-color: var(--stage-busuk); }
+
+    .specimen-file {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      color: var(--on-surface);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .specimen-meta {
+      font-size: 0.75rem;
+      color: var(--on-surface-variant);
+    }
+
+    .inspector-box {
+      background-color: var(--background);
+      border: var(--rule);
+      border-left: 3px solid var(--primary);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .inspector-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+      padding: var(--space-sm) 0;
+      border-top: var(--rule);
+      border-bottom: var(--rule);
+    }
+
+    .code-snippet {
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      background-color: var(--surface-container-low);
+      padding: var(--space-sm);
+      color: var(--on-surface);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      border-left: 2px solid var(--outline);
+    }
+
+    /* Datatable Sections */
+    .tables-stack {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xl);
+    }
+
+    .table-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 2px solid var(--on-surface);
+    }
+
+    .table-section.is-hidden {
+      display: none;
+    }
+
+    .table-head-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+    }
+
+    .table-controls {
+      display: grid;
+      grid-template-columns: minmax(200px, 2fr) minmax(160px, 1.2fr) minmax(160px, 1.2fr) auto;
+      gap: var(--space-md);
+      align-items: end;
+      background-color: var(--surface-container);
+      padding: var(--space-md);
+    }
+
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      border-top: var(--rule);
+      border-bottom: var(--rule);
+      background-color: var(--background);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.875rem;
+    }
+
+    table.data-table thead th {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      padding: 0;
+      border-bottom: 1px solid var(--outline);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .sort-trigger {
+      appearance: none;
+      background: transparent;
+      border: 0;
+      width: 100%;
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xs);
+      text-align: left;
+    }
+
+    .sort-trigger--num {
+      justify-content: flex-end;
+      text-align: right;
+    }
+
+    .sort-trigger:hover {
+      background-color: var(--surface-container);
+    }
+
+    .sort-trigger.is-sorted {
+      color: var(--primary);
+      border-bottom: var(--indicator);
+    }
+
+    .sort-arrow {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    table.data-table tbody tr {
+      border-top: var(--rule);
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+
+    table.data-table tbody tr:nth-child(even) {
+      background-color: var(--surface-container-low);
+    }
+
+    table.data-table tbody tr:hover {
+      background-color: var(--surface-container-high);
+    }
+
+    table.data-table tbody tr.is-best-row {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    table.data-table tbody tr.is-best-row:hover {
+      background-color: var(--primary-container);
+    }
+
+    table.data-table tbody tr.is-selected-row {
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+    }
+
+    table.data-table td {
+      padding: 0.65rem var(--space-md);
+      vertical-align: middle;
+    }
+
+    .td-num {
+      text-align: right;
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .td-method {
+      font-weight: 500;
+      color: var(--on-surface);
+      min-width: 220px;
+    }
+
+    .cell-highlight-col {
+      background-color: var(--primary-container);
+      font-weight: 600;
+    }
+
+    .bar-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .inline-track {
+      width: 68px;
+      height: 4px;
+      background-color: var(--surface-container-high);
+      overflow: hidden;
+    }
+
+    .inline-fill {
+      height: 100%;
+      background-color: var(--data-1);
+      display: block;
+    }
+
+    .inline-fill--best {
+      background-color: var(--tertiary);
+    }
+
+    .inline-fill--low {
+      background-color: var(--data-context);
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: var(--space-xl);
+      background-color: var(--surface-container);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+
+    /* Notification / methodology footer */
+    .notice-strip {
+      background-color: var(--surface-container);
+      border-left: var(--state-bar-width) solid var(--primary);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .footer-meta {
+      border-top: var(--rule);
+      padding-top: var(--space-md);
+      padding-bottom: var(--space-lg);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-md);
+      color: var(--on-surface-variant);
+      font-size: 0.8125rem;
+    }
+
+    .is-hidden {
+      display: none !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .kpi-card--featured {
+        grid-column: span 6;
+      }
+      .kpi-card--support {
+        grid-column: span 6;
+      }
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .table-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-sm);
+        gap: var(--space-md);
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-card--featured,
+      .kpi-card--support {
+        grid-column: span 1;
+      }
+      .global-filter-row,
+      .table-controls {
+        grid-template-columns: 1fr;
+      }
+      .kpi-breakdown {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .chart-wrap {
+        min-height: 280px;
+        height: 280px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-grid">
+
+    <!-- 1. Header -->
+    <header class="dash-header">
+      <div class="dash-header-top">
+        <span class="label">LABORATORIUM PENGOLAHAN CITRA DIGITAL · BENCHMARK SEGMENTASI &amp; KLASIFIKASI</span>
+        <span class="tag tag--neutral mono-num">16 SPESIMEN · 600×600 PX</span>
+      </div>
+      <h1 class="headline">
+        Analisis Metode Pengolahan Citra untuk <strong>Kematangan Pisang</strong>
+      </h1>
+      <p class="helper-text">
+        Evaluasi komparatif performa metode tunggal dan metode campuran (hibrid) pada 4 fase kematangan pisang — <strong>Mentah</strong> (Hari 1), <strong>Matang</strong> (Hari 11), <strong>Terlalu Matang</strong> (Hari 15), dan <strong>Busuk</strong> (Hari 17) — mencakup tingkat keberhasilan per kondisi, keberhasilan keseluruhan, dan rata-rata <em>Intersection over Union</em> (IoU).
+      </p>
+      <div class="dash-meta-row">
+        <span class="tag">Otsu Thresholding: Terbaik Tunggal (86,0%)</span>
+        <span class="tag tag--positive">Campuran Hibrid Preprocessing + HSV + Otsu + Morfologi: Terbaik Campuran (96,9%)</span>
+        <span class="tag tag--neutral">Referensi: Modul Pengolahan Citra Pertemuan 1–6</span>
+      </div>
+    </header>
+
+    <!-- 2. Summary Metric Cards (4 KPI Tiles) -->
+    <section aria-label="Ringkasan Metrik Metode Terbaik" class="kpi-grid">
+
+      <!-- Card 1: Best Single Method -->
+      <article class="kpi-card kpi-card--featured">
+        <div>
+          <span class="label">PELUANG TERBESAR · METODE TUNGGAL</span>
+          <h2 class="kpi-method-name" style="margin-top: var(--space-xs);">Otsu Thresholding</h2>
+          <p class="helper-text" style="margin-top: 2px;">Pengambangan otomatis berbasis varians antarkelas histogram (Pertemuan 6).</p>
+        </div>
+        <div class="kpi-metrics-pair">
+          <div>
+            <span class="key-value key-value--accent">86,0%</span>
+            <span class="kpi-sub-label">KEBERHASILAN KESELURUHAN</span>
+          </div>
+          <div>
+            <span class="key-value">0,818</span>
+            <span class="kpi-sub-label">RATA-RATA IoU</span>
+          </div>
+        </div>
+        <div class="kpi-breakdown" aria-label="Rincian Otsu per kondisi">
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">Mentah</span>
+            <span class="kpi-mini-val">87,5%</span>
+          </div>
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">Matang</span>
+            <span class="kpi-mini-val">93,8%</span>
+          </div>
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">T. Matang</span>
+            <span class="kpi-mini-val">84,4%</span>
+          </div>
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">Busuk</span>
+            <span class="kpi-mini-val">78,3%</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Best Hybrid Method -->
+      <article class="kpi-card kpi-card--featured">
+        <div>
+          <span class="label">PELUANG TERBESAR · METODE CAMPURAN</span>
+          <h2 class="kpi-method-name" style="margin-top: var(--space-xs);">Campuran Hibrid Preprocessing + HSV + Otsu + Morfologi</h2>
+          <p class="helper-text" style="margin-top: 2px;">Pipeline 4-tahap: Gaussian/Kontras, mask Hue-HSV, Otsu, dan Opening-Closing.</p>
+        </div>
+        <div class="kpi-metrics-pair">
+          <div>
+            <span class="key-value key-value--positive">96,9%</span>
+            <span class="kpi-sub-label">KEBERHASILAN KESELURUHAN</span>
+          </div>
+          <div>
+            <span class="key-value">0,934</span>
+            <span class="kpi-sub-label">RATA-RATA IoU</span>
+          </div>
+        </div>
+        <div class="kpi-breakdown" aria-label="Rincian Hibrid per kondisi">
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">Mentah</span>
+            <span class="kpi-mini-val">97,5%</span>
+          </div>
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">Matang</span>
+            <span class="kpi-mini-val">100,0%</span>
+          </div>
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">T. Matang</span>
+            <span class="kpi-mini-val">96,5%</span>
+          </div>
+          <div class="kpi-mini-cell">
+            <span class="kpi-mini-stage">Busuk</span>
+            <span class="kpi-mini-val">93,6%</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: Gain Delta -->
+      <article class="kpi-card kpi-card--support">
+        <div>
+          <span class="label">KEUNGGULAN HIBRID</span>
+          <div class="key-value key-value--positive" style="margin-top: var(--space-sm);">+10,9%</div>
+          <span class="kpi-sub-label">KENAIKAN KEBERHASILAN VS TUNGGAL</span>
+        </div>
+        <div style="border-top: var(--rule); padding-top: var(--space-sm);">
+          <div class="mono-num" style="font-size: 1.125rem; font-weight: 500;">+0,116 IoU</div>
+          <p class="helper-text" style="margin-top: 2px;">Lonjakan terbesar pada fase Busuk (+15,3%) berkat penutupan lubang morfologi.</p>
+        </div>
+      </article>
+
+      <!-- Card 4: Dataset Scope -->
+      <article class="kpi-card kpi-card--support">
+        <div>
+          <span class="label">POPULASI &amp; METODE</span>
+          <div class="key-value" style="margin-top: var(--space-sm);">22</div>
+          <span class="kpi-sub-label">METODE DIEVALUASI (12 + 10)</span>
+        </div>
+        <div style="border-top: var(--rule); padding-top: var(--space-sm);">
+          <div class="mono-num" style="font-size: 1.125rem; font-weight: 500;">16 Citra Uji</div>
+          <p class="helper-text" style="margin-top: 2px;">4 Mentah · 4 Matang · 4 Terlalu Matang · 4 Busuk (Sisi Kanan &amp; Kiri).</p>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- 3. Navigation Tabs & Global Filter Bar -->
+    <section aria-label="Navigasi Target Analisis dan Filter Global" class="control-strip">
+      <div class="tab-bar" role="tablist" aria-label="Pilih Tampilan Target Datatable">
+        <button type="button" class="tab-btn is-active" id="tab-all" onclick="setActiveTargetView('all')">
+          Semua Analisis (4 Datatable)
+        </button>
+        <button type="button" class="tab-btn" id="tab-t1" onclick="setActiveTargetView('t1')">
+          1. Tunggal per Kondisi
+        </button>
+        <button type="button" class="tab-btn" id="tab-t2" onclick="setActiveTargetView('t2')">
+          2. Campuran per Kondisi
+        </button>
+        <button type="button" class="tab-btn" id="tab-t3" onclick="setActiveTargetView('t3')">
+          3. Tunggal Keseluruhan &amp; IoU
+        </button>
+        <button type="button" class="tab-btn" id="tab-t4" onclick="setActiveTargetView('t4')">
+          4. Campuran Keseluruhan &amp; IoU
+        </button>
+      </div>
+
+      <div class="global-filter-row">
+        <div class="field-group">
+          <label for="global-search" class="field-label">Pencarian Global (Seluruh 4 Datatable)</label>
+          <input
+            type="search"
+            id="global-search"
+            class="carbon-input"
+            placeholder="Ketik nama metode, misalnya Otsu, HSV, Morfologi, GLCM…"
+            oninput="applyGlobalSearch(this.value)"
+          >
+        </div>
+
+        <div class="field-group">
+          <label for="global-condition-focus" class="field-label">Sorot Kondisi Kematangan</label>
+          <select id="global-condition-focus" class="carbon-select" onchange="setConditionHighlight(this.value)">
+            <option value="all">Semua Kondisi (Normal)</option>
+            <option value="mentah">Sorot Kolom Mentah (H1)</option>
+            <option value="matang">Sorot Kolom Matang (H11)</option>
+            <option value="terlaluMatang">Sorot Kolom Terlalu Matang (H15)</option>
+            <option value="busuk">Sorot Kolom Busuk (H17)</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn btn--secondary" onclick="resetAllFilters()">
+          <i data-lucide="rotate-ccw" aria-hidden="true" style="width:16px;height:16px;"></i>
+          Reset Semua Filter
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. Visual Comparison & Specimen / Method Inspector -->
+    <section aria-label="Visualisasi Komparatif dan Inspektor Spesimen" class="workspace-grid">
+
+      <!-- Left: Chart Panel -->
+      <div class="panel-box">
+        <div class="panel-header">
+          <div>
+            <h2 class="subhead" id="chart-title">Perbandingan Keberhasilan per Kondisi Kematangan (%)</h2>
+            <span class="label" id="chart-subtitle" style="margin-top: 2px;">OTSU TUNGGAL VS HIBRID TERBAIK VS RATA-RATA KATEGORI</span>
+          </div>
+          <div class="segmented-row" role="group" aria-label="Mode Grafik">
+            <button type="button" class="seg-btn is-active" id="btn-chart-cond" onclick="switchChartMode('conditions')">
+              Per Kondisi
+            </button>
+            <button type="button" class="seg-btn" id="btn-chart-scatter" onclick="switchChartMode('scatter')">
+              Keberhasilan vs IoU
+            </button>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="performance-chart" aria-label="Grafik performa metode pengolahan citra"></canvas>
+        </div>
+        <p class="helper-text" id="chart-caption">
+          Pada kondisi <strong>Matang (H11)</strong>, pemisahan warna kuning terhadap latar belakang memaksimalkan performa hingga 100,0% dengan metode campuran hibrid. Penurunan terjadi pada fase <strong>Busuk (H17)</strong> akibat bercak gelap nekrosis yang menurunkan stabilitas deteksi tepi tunggal.
+        </p>
+      </div>
+
+      <!-- Right: Specimen Inventory & Method Inspector -->
+      <div class="panel-box">
+        <div class="panel-header">
+          <div>
+            <h2 class="subhead">Inspektor Metode &amp; Dataset Spesimen</h2>
+            <span class="label" style="margin-top: 2px;">KLIK BARIS TABEL MANAPUN UNTUK DETAIL</span>
+          </div>
+          <div class="segmented-row" role="group" aria-label="Panel Kanan">
+            <button type="button" class="seg-btn is-active" id="btn-side-inspector" onclick="switchSideTab('inspector')">
+              Detail Metode
+            </button>
+            <button type="button" class="seg-btn" id="btn-side-specimens" onclick="switchSideTab('specimens')">
+              16 Spesimen
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-view A: Method Inspector -->
+        <div id="side-panel-inspector" class="inspector-box">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-sm);">
+            <div>
+              <span class="label" id="insp-type">METODE CAMPURAN · PERINGKAT #1</span>
+              <h3 class="subhead" id="insp-name" style="margin-top: 4px;">Campuran Hibrid Preprocessing + HSV + Otsu + Morfologi</h3>
+            </div>
+            <span class="tag tag--positive" id="insp-badge">Terbaik</span>
+          </div>
+
+          <div class="inspector-metrics">
+            <div>
+              <span class="label">KEBERHASILAN TOTAL</span>
+              <span class="mono-num" id="insp-overall" style="font-size: 1.375rem; font-weight: 500;">96,9%</span>
+            </div>
+            <div>
+              <span class="label">RATA-RATA IoU</span>
+              <span class="mono-num" id="insp-iou" style="font-size: 1.375rem; font-weight: 500;">0,934</span>
+            </div>
+          </div>
+
+          <div>
+            <span class="label">ANALISIS TEKNIS &amp; KARAKTERISTIK</span>
+            <p class="helper-text" id="insp-desc" style="margin-top: 4px; color: var(--on-surface);">
+              Menggabungkan Gaussian filtering (Pertemuan 3) untuk meredam noise tekstur, konversi ruang warna HSV (Pertemuan 1 &amp; 6) untuk mengisolasi spektrum hijau–kuning–coklat, thresholding Otsu otomatis (Pertemuan 6), serta operasi morfologi Opening dan Closing (Pertemuan 5) untuk menutup lubang akibat bercak busuk.
+            </p>
+          </div>
+
+          <div>
+            <span class="label">IMPLEMENTASI PIPELINE (OPENCV / PYTHON)</span>
+            <pre class="code-snippet" id="insp-code">blur = cv2.GaussianBlur(img, (5, 5), 0)
+hsv  = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
+_, mask_otsu = cv2.threshold(hsv[:,:,1], 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+clean = cv2.morphologyEx(mask_otsu, cv2.MORPH_CLOSE, kernel_5x5)</pre>
+          </div>
+        </div>
+
+        <!-- Sub-view B: 16 Specimens List -->
+        <div id="side-panel-specimens" class="is-hidden" style="display:flex; flex-direction:column; gap:var(--space-sm);">
+          <div class="field-group">
+            <label for="specimen-stage-filter" class="field-label">Filter Kondisi Spesimen</label>
+            <select id="specimen-stage-filter" class="carbon-select" onchange="renderSpecimens()">
+              <option value="all">Semua Kondisi (16 Citra)</option>
+              <option value="Mentah">Mentah — Hari 1 (4 Citra)</option>
+              <option value="Matang">Matang — Hari 11 (4 Citra)</option>
+              <option value="Terlalu Matang">Terlalu Matang — Hari 15 (4 Citra)</option>
+              <option value="Busuk">Busuk — Hari 17 (4 Citra)</option>
+            </select>
+          </div>
+          <div class="specimen-list" id="specimen-list" aria-live="polite"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 5. The 4 Interactive Datatables -->
+    <section aria-label="Empat Datatable Interaktif Hasil Analisis" class="tables-stack">
+
+      <!-- DATATABLE 1 -->
+      <article class="table-section" id="section-t1">
+        <div class="table-head-bar">
+          <div>
+            <span class="label">TARGET ANALISIS 01 · METODE TUNGGAL PER KONDISI</span>
+            <h2 class="section-title" style="margin-top: 4px;">
+              1. Persentase Keberhasilan per 1 Metode Tunggal (Mentah, Matang, Terlalu Matang, Busuk)
+            </h2>
+          </div>
+          <span class="tag tag--neutral mono-num" id="t1-count">Menampilkan 12 dari 12 metode</span>
+        </div>
+
+        <div class="table-controls">
+          <div class="field-group">
+            <label for="t1-search" class="field-label">Cari Metode Tunggal</label>
+            <input type="search" id="t1-search" class="carbon-input" placeholder="Cari nama metode atau kategori…" oninput="updateTable1()">
+          </div>
+          <div class="field-group">
+            <label for="t1-cat" class="field-label">Filter Kategori Materi</label>
+            <select id="t1-cat" class="carbon-select" onchange="updateTable1()">
+              <option value="all">Semua Kategori</option>
+              <option value="Segmentasi">Segmentasi</option>
+              <option value="Ekstraksi Fitur">Ekstraksi Fitur</option>
+              <option value="Morfologi">Morfologi</option>
+              <option value="Deteksi Tepi">Deteksi Tepi</option>
+              <option value="Filtering">Filtering</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="t1-min" class="field-label">Filter Ambang Keberhasilan</label>
+            <select id="t1-min" class="carbon-select" onchange="updateTable1()">
+              <option value="0">Semua Nilai (≥ 0%)</option>
+              <option value="75">Tinggi (Semua Kondisi ≥ 70%)</option>
+              <option value="80">Matang ≥ 85%</option>
+              <option value="busuk70">Busuk ≥ 70%</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--ghost" onclick="resetTableFilter(1)">Reset Tabel 1</button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table" id="table-1">
+            <thead>
+              <tr>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="1" data-col="rank" onclick="sortTable(1, 'rank')">No <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="1" data-col="name" onclick="sortTable(1, 'name')">Metode Tunggal <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="1" data-col="category" onclick="sortTable(1, 'category')">Kategori <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="1" data-col="mentah" onclick="sortTable(1, 'mentah')">Mentah (H1) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="1" data-col="matang" onclick="sortTable(1, 'matang')">Matang (H11) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="1" data-col="terlaluMatang" onclick="sortTable(1, 'terlaluMatang')">Terlalu Matang (H15) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="1" data-col="busuk" onclick="sortTable(1, 'busuk')">Busuk (H17) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="1" data-col="bestStage" onclick="sortTable(1, 'bestStage')">Kondisi Terbaik <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-1"></tbody>
+          </table>
+          <div id="empty-1" class="empty-state is-hidden">
+            <span class="subhead">Tidak ada metode tunggal yang sesuai filter.</span>
+            <p class="helper-text">Coba ubah kata kunci pencarian atau longgarkan ambang batas persentase keberhasilan.</p>
+            <button type="button" class="btn btn--secondary" onclick="resetTableFilter(1)">Reset Filter Tabel 1</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- DATATABLE 2 -->
+      <article class="table-section" id="section-t2">
+        <div class="table-head-bar">
+          <div>
+            <span class="label">TARGET ANALISIS 02 · METODE CAMPURAN PER KONDISI</span>
+            <h2 class="section-title" style="margin-top: 4px;">
+              2. Persentase Keberhasilan per Metode Campuran (Mentah, Matang, Terlalu Matang, Busuk)
+            </h2>
+          </div>
+          <span class="tag tag--neutral mono-num" id="t2-count">Menampilkan 10 dari 10 metode</span>
+        </div>
+
+        <div class="table-controls">
+          <div class="field-group">
+            <label for="t2-search" class="field-label">Cari Metode Campuran</label>
+            <input type="search" id="t2-search" class="carbon-input" placeholder="Cari kombinasi metode (Otsu, HSV, L*a*b*, Morfologi)…" oninput="updateTable2()">
+          </div>
+          <div class="field-group">
+            <label for="t2-cat" class="field-label">Filter Tipe Kombinasi</label>
+            <select id="t2-cat" class="carbon-select" onchange="updateTable2()">
+              <option value="all">Semua Tipe Kombinasi</option>
+              <option value="4-Tahap Hibrid">4-Tahap Hibrid</option>
+              <option value="3-Tahap Segmentasi + Morfologi">3-Tahap Segmentasi + Morfologi</option>
+              <option value="3-Tahap Pra-proses + Fitur">3-Tahap Pra-proses + Fitur</option>
+              <option value="2-Tahap Dasar">2-Tahap Dasar</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="t2-min" class="field-label">Filter Kinerja Kondisi</label>
+            <select id="t2-min" class="carbon-select" onchange="updateTable2()">
+              <option value="0">Semua Nilai</option>
+              <option value="all85">Semua Kondisi ≥ 85%</option>
+              <option value="busuk85">Busuk ≥ 85%</option>
+              <option value="matang95">Matang ≥ 95%</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--ghost" onclick="resetTableFilter(2)">Reset Tabel 2</button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table" id="table-2">
+            <thead>
+              <tr>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="2" data-col="rank" onclick="sortTable(2, 'rank')">No <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="2" data-col="name" onclick="sortTable(2, 'name')">Metode Campuran <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="2" data-col="pipelineType" onclick="sortTable(2, 'pipelineType')">Tipe Pipeline <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="2" data-col="mentah" onclick="sortTable(2, 'mentah')">Mentah (H1) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="2" data-col="matang" onclick="sortTable(2, 'matang')">Matang (H11) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="2" data-col="terlaluMatang" onclick="sortTable(2, 'terlaluMatang')">Terlalu Matang (H15) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="2" data-col="busuk" onclick="sortTable(2, 'busuk')">Busuk (H17) % <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="2" data-col="spread" onclick="sortTable(2, 'spread')">Rentang Stabilitas <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-2"></tbody>
+          </table>
+          <div id="empty-2" class="empty-state is-hidden">
+            <span class="subhead">Tidak ada metode campuran yang sesuai filter.</span>
+            <p class="helper-text">Ubah kata kunci pencarian atau pilih tipe pipeline lainnya.</p>
+            <button type="button" class="btn btn--secondary" onclick="resetTableFilter(2)">Reset Filter Tabel 2</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- DATATABLE 3 -->
+      <article class="table-section" id="section-t3">
+        <div class="table-head-bar">
+          <div>
+            <span class="label">TARGET ANALISIS 03 · REKAP METODE TUNGGAL KESELURUHAN</span>
+            <h2 class="section-title" style="margin-top: 4px;">
+              3. Persentase Keberhasilan dan Rata-rata IoU per 1 Metode Tunggal (Kondisi Keseluruhan)
+            </h2>
+          </div>
+          <span class="tag tag--neutral mono-num" id="t3-count">Menampilkan 12 dari 12 metode</span>
+        </div>
+
+        <div class="table-controls">
+          <div class="field-group">
+            <label for="t3-search" class="field-label">Cari Metode Tunggal</label>
+            <input type="search" id="t3-search" class="carbon-input" placeholder="Cari metode tunggal…" oninput="updateTable3()">
+          </div>
+          <div class="field-group">
+            <label for="t3-cat" class="field-label">Filter Kategori Materi</label>
+            <select id="t3-cat" class="carbon-select" onchange="updateTable3()">
+              <option value="all">Semua Kategori</option>
+              <option value="Segmentasi">Segmentasi</option>
+              <option value="Ekstraksi Fitur">Ekstraksi Fitur</option>
+              <option value="Morfologi">Morfologi</option>
+              <option value="Deteksi Tepi">Deteksi Tepi</option>
+              <option value="Filtering">Filtering</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="t3-iou" class="field-label">Filter Klasifikasi IoU</label>
+            <select id="t3-iou" class="carbon-select" onchange="updateTable3()">
+              <option value="all">Semua Klasifikasi IoU</option>
+              <option value="Sangat Baik">Sangat Baik (IoU ≥ 0,80)</option>
+              <option value="Baik">Baik (0,65 – 0,79)</option>
+              <option value="Cukup">Cukup (0,50 – 0,64)</option>
+              <option value="Rendah">Rendah (&lt; 0,50)</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--ghost" onclick="resetTableFilter(3)">Reset Tabel 3</button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table" id="table-3">
+            <thead>
+              <tr>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="3" data-col="rank" onclick="sortTable(3, 'rank')">Peringkat <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="3" data-col="name" onclick="sortTable(3, 'name')">Metode Tunggal <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="3" data-col="category" onclick="sortTable(3, 'category')">Kategori Materi <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="3" data-col="overall" onclick="sortTable(3, 'overall')">Keberhasilan Keseluruhan (%) <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="3" data-col="iou" onclick="sortTable(3, 'iou')">Rata-rata IoU <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="3" data-col="iouClass" onclick="sortTable(3, 'iouClass')">Klasifikasi IoU <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="3" data-col="successCount" onclick="sortTable(3, 'successCount')">Estimasi Tepat (n/16) <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="3" data-col="status" onclick="sortTable(3, 'status')">Status Evaluasi <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-3"></tbody>
+          </table>
+          <div id="empty-3" class="empty-state is-hidden">
+            <span class="subhead">Tidak ada metode tunggal yang sesuai filter.</span>
+            <p class="helper-text">Reset filter IoU atau kategori untuk melihat kembali seluruh daftar metode.</p>
+            <button type="button" class="btn btn--secondary" onclick="resetTableFilter(3)">Reset Filter Tabel 3</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- DATATABLE 4 -->
+      <article class="table-section" id="section-t4">
+        <div class="table-head-bar">
+          <div>
+            <span class="label">TARGET ANALISIS 04 · REKAP METODE CAMPURAN KESELURUHAN</span>
+            <h2 class="section-title" style="margin-top: 4px;">
+              4. Persentase Keberhasilan dan Rata-rata IoU per Metode Campuran (Kondisi Keseluruhan Pisang)
+            </h2>
+          </div>
+          <span class="tag tag--neutral mono-num" id="t4-count">Menampilkan 10 dari 10 metode</span>
+        </div>
+
+        <div class="table-controls">
+          <div class="field-group">
+            <label for="t4-search" class="field-label">Cari Metode Campuran</label>
+            <input type="search" id="t4-search" class="carbon-input" placeholder="Cari metode campuran…" oninput="updateTable4()">
+          </div>
+          <div class="field-group">
+            <label for="t4-comp" class="field-label">Filter Komponen Pipeline</label>
+            <select id="t4-comp" class="carbon-select" onchange="updateTable4()">
+              <option value="all">Semua Komponen</option>
+              <option value="Otsu">Mengandung Otsu</option>
+              <option value="HSV">Mengandung HSV</option>
+              <option value="Morfologi">Mengandung Morfologi</option>
+              <option value="GLCM">Mengandung GLCM</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="t4-iou" class="field-label">Filter Klasifikasi IoU</label>
+            <select id="t4-iou" class="carbon-select" onchange="updateTable4()">
+              <option value="all">Semua Klasifikasi IoU</option>
+              <option value="Sangat Baik">Sangat Baik (IoU ≥ 0,85)</option>
+              <option value="Baik">Baik (0,75 – 0,84)</option>
+              <option value="Cukup">Cukup (&lt; 0,75)</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--ghost" onclick="resetTableFilter(4)">Reset Tabel 4</button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table" id="table-4">
+            <thead>
+              <tr>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="4" data-col="rank" onclick="sortTable(4, 'rank')">Peringkat <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="4" data-col="name" onclick="sortTable(4, 'name')">Metode Campuran <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="4" data-col="pipelineType" onclick="sortTable(4, 'pipelineType')">Tipe Pipeline <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="4" data-col="overall" onclick="sortTable(4, 'overall')">Keberhasilan Keseluruhan (%) <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="4" data-col="iou" onclick="sortTable(4, 'iou')">Rata-rata IoU <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger sort-trigger--num" data-table="4" data-col="deltaVsOtsu" onclick="sortTable(4, 'deltaVsOtsu')">Selisih vs Otsu Tunggal <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="4" data-col="iouClass" onclick="sortTable(4, 'iouClass')">Klasifikasi IoU <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+                <th><button type="button" class="sort-trigger" data-table="4" data-col="recommendation" onclick="sortTable(4, 'recommendation')">Rekomendasi <span class="sort-arrow" aria-hidden="true">↕</span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-4"></tbody>
+          </table>
+          <div id="empty-4" class="empty-state is-hidden">
+            <span class="subhead">Tidak ada metode campuran yang sesuai filter.</span>
+            <p class="helper-text">Reset filter komponen atau klasifikasi IoU untuk menampilkan seluruh baris.</p>
+            <button type="button" class="btn btn--secondary" onclick="resetTableFilter(4)">Reset Filter Tabel 4</button>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- 6. Methodology Note & Footer -->
+    <section class="notice-strip" aria-label="Catatan Metodologi dan Sumber">
+      <span class="label">CATATAN METODOLOGI &amp; KETERTELUSURAN SUMBER</span>
+      <p class="helper-text" style="color: var(--on-surface);">
+        <strong>Protokol Evaluasi:</strong> Pengujian disusun berdasarkan 16 citra spesimen pisang resolusi 600×600 piksel (<em>Realme_11</em>, <em>Realme_12</em>, <em>Realme_14</em>; sisi Kanan dan Kiri) yang mewakili kondisi Mentah (H1), Matang (H11), Terlalu Matang (H15), dan Busuk (H17). Nilai keberhasilan keseluruhan pada Tabel 3 dan Tabel 4 merupakan rata-rata aritmetika tepat dari empat kondisi kematangan pada Tabel 1 dan Tabel 2. Metrik <em>Intersection over Union</em> (IoU) mengukur rasio irisan terhadap gabungan antara area segmentasi terprediksi dan masker referensi objek pisang.
+      </p>
+      <p class="helper-text">
+        <strong>Landasan Metode:</strong> Seluruh algoritma merujuk materi perkuliahan Pengolahan Citra Digital (Pertemuan 1–6), meliputi konversi ruang warna RGB/Grayscale/HSV/L*a*b*, peregangan kontras dan histogram, penapisan Gaussian/Median/Low-Pass, operasi morfologi Dilasi–Erosi–Opening–Closing, deteksi tepi Roberts/Sobel/Canny, metode ambang Otsu, serta ekstraksi fitur bentuk, warna, dan tekstur GLCM beserta studi banding penelitian RESTI (K-Means + GLCM) dan Sistemasi (Multi-Thresholding &amp; Low-Pass Filtering).
+      </p>
+    </section>
+
+    <footer class="footer-meta">
+      <span>Dashboard Analisis Pengolahan Citra Digital — Studi Kematangan Pisang</span>
+      <span class="mono-num">22 METODE EVALUASI · 16 SPESIMEN · FORMAT TABULAR TERKALIBRASI</span>
+    </footer>
+
+  </main>
+
+  <script>
+    // 1. Single source of truth datasets (backtick template literals for safe string escaping)
+    const SPECIMENS = [
+      { id: `S01`, file: `Realme_11_H1F1_Kanan_mentah.jpg`, device: `Realme 11`, day: `H1`, frame: `F1`, side: `Kanan`, stage: `Mentah`, swatchClass: `swatch-mentah`, res: `600×600`, otsuScore: `88,4%`, hybridScore: `97,8%` },
+      { id: `S02`, file: `Realme_11_H1F1_Kiri_mentah.jpg`, device: `Realme 11`, day: `H1`, frame: `F1`, side: `Kiri`, stage: `Mentah`, swatchClass: `swatch-mentah`, res: `600×600`, otsuScore: `87,1%`, hybridScore: `97,2%` },
+      { id: `S03`, file: `Realme_11_H1F2_Kanan_mentah.jpg`, device: `Realme 11`, day: `H1`, frame: `F2`, side: `Kanan`, stage: `Mentah`, swatchClass: `swatch-mentah`, res: `600×600`, otsuScore: `87,9%`, hybridScore: `97,6%` },
+      { id: `S04`, file: `Realme_11_H1F2_Kiri_mentah.jpg`, device: `Realme 11`, day: `H1`, frame: `F2`, side: `Kiri`, stage: `Mentah`, swatchClass: `swatch-mentah`, res: `600×600`, otsuScore: `86,6%`, hybridScore: `97,4%` },
+
+      { id: `S05`, file: `Realme_11_H11F1_Kanan_matang.jpg`, device: `Realme 11`, day: `H11`, frame: `F1`, side: `Kanan`, stage: `Matang`, swatchClass: `swatch-matang`, res: `600×600`, otsuScore: `94,5%`, hybridScore: `100,0%` },
+      { id: `S06`, file: `Realme_11_H11F1_Kiri_matang.jpg`, device: `Realme 11`, day: `H11`, frame: `F1`, side: `Kiri`, stage: `Matang`, swatchClass: `swatch-matang`, res: `600×600`, otsuScore: `93,6%`, hybridScore: `100,0%` },
+      { id: `S07`, file: `Realme_11_H11F2_Kanan_matang.jpg`, device: `Realme 11`, day: `H11`, frame: `F2`, side: `Kanan`, stage: `Matang`, swatchClass: `swatch-matang`, res: `600×600`, otsuScore: `94,1%`, hybridScore: `100,0%` },
+      { id: `S08`, file: `Realme_11_H11F2_Kiri_matang.jpg`, device: `Realme 11`, day: `H11`, frame: `F2`, side: `Kiri`, stage: `Matang`, swatchClass: `swatch-matang`, res: `600×600`, otsuScore: `93,0%`, hybridScore: `100,0%` },
+
+      { id: `S09`, file: `Realme_11_H15F1_Kanan_terlalu-matang.jpg`, device: `Realme 11`, day: `H15`, frame: `F1`, side: `Kanan`, stage: `Terlalu Matang`, swatchClass: `swatch-terlalu-matang`, res: `600×600`, otsuScore: `85,2%`, hybridScore: `96,8%` },
+      { id: `S10`, file: `Realme_11_H15F1_Kiri_terlalu-matang.jpg`, device: `Realme 11`, day: `H15`, frame: `F1`, side: `Kiri`, stage: `Terlalu Matang`, swatchClass: `swatch-terlalu-matang`, res: `600×600`, otsuScore: `84,0%`, hybridScore: `96,4%` },
+      { id: `S11`, file: `Realme_12_H15F2_Kanan_terlalu-matang.jpg`, device: `Realme 12`, day: `H15`, frame: `F2`, side: `Kanan`, stage: `Terlalu Matang`, swatchClass: `swatch-terlalu-matang`, res: `600×600`, otsuScore: `84,8%`, hybridScore: `96,7%` },
+      { id: `S12`, file: `Realme_12_H15F2_Kiri_terlalu-matang.jpg`, device: `Realme 12`, day: `H15`, frame: `F2`, side: `Kiri`, stage: `Terlalu Matang`, swatchClass: `swatch-terlalu-matang`, res: `600×600`, otsuScore: `83,6%`, hybridScore: `96,1%` },
+
+      { id: `S13`, file: `Realme_14_H17F1_Kanan_busuk.jpg`, device: `Realme 14`, day: `H17`, frame: `F1`, side: `Kanan`, stage: `Busuk`, swatchClass: `swatch-busuk`, res: `600×600`, otsuScore: `79,2%`, hybridScore: `94,1%` },
+      { id: `S14`, file: `Realme_14_H17F1_Kiri_busuk.jpg`, device: `Realme 14`, day: `H17`, frame: `F1`, side: `Kiri`, stage: `Busuk`, swatchClass: `swatch-busuk`, res: `600×600`, otsuScore: `78,0%`, hybridScore: `93,4%` },
+      { id: `S15`, file: `Realme_14_H17F2_Kanan_busuk.jpg`, device: `Realme 14`, day: `H17`, frame: `F2`, side: `Kanan`, stage: `Busuk`, swatchClass: `swatch-busuk`, res: `600×600`, otsuScore: `78,6%`, hybridScore: `93,8%` },
+      { id: `S16`, file: `Realme_14_H17F2_Kiri_busuk.jpg`, device: `Realme 14`, day: `H17`, frame: `F2`, side: `Kiri`, stage: `Busuk`, swatchClass: `swatch-busuk`, res: `600×600`, otsuScore: `77,4%`, hybridScore: `93,1%` }
+    ];
+
+    const SINGLE_METHODS_RAW = [
+      {
+        rank: 1,
+        name: `Otsu Thresholding`,
+        category: `Segmentasi`,
+        mentah: 87.5,
+        matang: 93.8,
+        terlaluMatang: 84.4,
+        busuk: 78.3,
+        iou: 0.818,
+        isBest: true,
+        desc: `Menentukan nilai ambang optimal secara otomatis dengan memaksimalkan varians antarkelas pada histogram intensitas. Paling tangguh sebagai metode tunggal, terutama saat histogram bimodal terlihat jelas pada fase Matang dan Mentah.`,
+        code: `gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)\nval, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)`
+      },
+      {
+        rank: 2,
+        name: `Segmentasi Ruang Warna HSV`,
+        category: `Segmentasi`,
+        mentah: 84.0,
+        matang: 91.0,
+        terlaluMatang: 82.0,
+        busuk: 71.0,
+        iou: 0.784,
+        isBest: false,
+        desc: `Memisahkan kanal Hue, Saturation, dan Value untuk mengisolasi rentang warna hijau (Mentah), kuning (Matang), dan jingga-kecoklatan. Cukup sensitif menurun ketika kulit pisang busuk menjadi gelap dengan saturasi rendah.`,
+        code: `hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)\nmask = cv2.inRange(hsv, np.array([15, 40, 40]), np.array([45, 255, 255]))`
+      },
+      {
+        rank: 3,
+        name: `Multilevel Thresholding`,
+        category: `Segmentasi`,
+        mentah: 81.0,
+        matang: 88.0,
+        terlaluMatang: 79.0,
+        busuk: 72.0,
+        iou: 0.752,
+        isBest: false,
+        desc: `Membagi rentang intensitas citra ke dalam beberapa level ambang untuk memisahkan latar, kulit sehat, dan area bercak senesens secara simultan.`,
+        code: `thresholds = threshold_multiotsu(gray, classes=3)\nregions = np.digitize(gray, bins=thresholds)`
+      },
+      {
+        rank: 4,
+        name: `Ekstraksi Fitur Warna (Histogram HSV)`,
+        category: `Ekstraksi Fitur`,
+        mentah: 80.5,
+        matang: 89.5,
+        terlaluMatang: 76.0,
+        busuk: 68.0,
+        iou: 0.715,
+        isBest: false,
+        desc: `Mengekstrak distribusi histogram kanal Hue yang dinormalisasi sebagai deskriptor kematangan warna tanpa melakukan pemodelan kontur spasial secara penuh.`,
+        code: `hist = cv2.calcHist([hsv], [0], mask, [256], [0, 256])\nhist = cv2.normalize(hist, hist).flatten()`
+      },
+      {
+        rank: 5,
+        name: `Adaptive Thresholding`,
+        category: `Segmentasi`,
+        mentah: 77.0,
+        matang: 83.0,
+        terlaluMatang: 75.0,
+        busuk: 71.0,
+        iou: 0.708,
+        isBest: false,
+        desc: `Menghitung ambang lokal berbasis jendela ketetanggaan (mean/Gaussian). Tahan terhadap variasi pencahayaan, tetapi berisiko memecah interior buah pisang yang homogen menjadi berlubang.`,
+        code: `adapt = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 4)`
+      },
+      {
+        rank: 6,
+        name: `Ekstraksi Fitur Tekstur (GLCM)`,
+        category: `Ekstraksi Fitur`,
+        mentah: 71.0,
+        matang: 74.0,
+        terlaluMatang: 78.0,
+        busuk: 79.0,
+        iou: 0.664,
+        isBest: false,
+        desc: `Mengukur kontras, homogenitas, energi, dan korelasi matriks ko-okurensi keabuan pada sudut 0°, 45°, 90°, 135°. Uniknya unggul pada fase Terlalu Matang dan Busuk karena kekasaran bercak dan kerutan kulit sangat khas.`,
+        code: `glcm = greycomatrix(gray, distances=[1], angles=[0], levels=256, symmetric=True, normed=True)\ncontrast = greycoprops(glcm, 'contrast')`
+      },
+      {
+        rank: 7,
+        name: `Operasi Morfologi (Opening & Closing)`,
+        category: `Morfologi`,
+        mentah: 74.0,
+        matang: 79.0,
+        terlaluMatang: 72.0,
+        busuk: 65.0,
+        iou: 0.682,
+        isBest: false,
+        desc: `Menerapkan elemen penstruktur untuk erosi diikuti dilasi (Opening) dan dilasi diikuti erosi (Closing). Sangat efektif sebagai penyempurna pasca-segmentasi, namun terbatas bila berdiri sendiri tanpa pembangkit masker biner awal.`,
+        code: `opened = cv2.morphologyEx(bin_img, cv2.MORPH_OPEN, kernel)\nclosed = cv2.morphologyEx(opened, cv2.MORPH_CLOSE, kernel)`
+      },
+      {
+        rank: 8,
+        name: `Ekstraksi Fitur Bentuk & Kontur`,
+        category: `Ekstraksi Fitur`,
+        mentah: 72.0,
+        matang: 76.0,
+        terlaluMatang: 68.0,
+        busuk: 60.0,
+        iou: 0.621,
+        isBest: false,
+        desc: `Menghitung metrik area, keliling, circularity, rasio aspek, dan convex hull dari kontur objek. Karena geometri buah relatif mirip antarhari, akurasinya terbatas pada pemisahan fase lanjut.`,
+        code: `contours, _ = cv2.findContours(bin_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)\ncirc = (4 * np.pi * area) / (perimeter ** 2)`
+      },
+      {
+        rank: 9,
+        name: `Deteksi Tepi Canny`,
+        category: `Deteksi Tepi`,
+        mentah: 69.0,
+        matang: 73.0,
+        terlaluMatang: 64.0,
+        busuk: 56.0,
+        iou: 0.548,
+        isBest: false,
+        desc: `Detektor tepi berbasis gradien multi-tahap dengan non-maximum suppression. Menghasilkan garis tepi tipis yang baik, tetapi bintik coklat pada pisang terlalu matang menimbulkan banyak tepi palsu di dalam objek.`,
+        code: `edges = cv2.Canny(gray, threshold1=50, threshold2=150)`
+      },
+      {
+        rank: 10,
+        name: `Deteksi Tepi Sobel`,
+        category: `Deteksi Tepi`,
+        mentah: 64.0,
+        matang: 68.0,
+        terlaluMatang: 59.0,
+        busuk: 51.0,
+        iou: 0.492,
+        isBest: false,
+        desc: `Menggunakan konvolusi kernel gradien 3×3 arah horizontal dan vertikal. Rentan terhadap derau permukaan dan tidak menghasilkan area tersegmentasi tertutup tanpa dilasi lanjutan.`,
+        code: `edge_sobel = filters.sobel(gray)`
+      },
+      {
+        rank: 11,
+        name: `Low-Pass & Gaussian Filtering`,
+        category: `Filtering`,
+        mentah: 61.0,
+        matang: 65.0,
+        terlaluMatang: 56.0,
+        busuk: 50.0,
+        iou: 0.475,
+        isBest: false,
+        desc: `Operasi penapisan lolos-bawah yang meratakan frekuensi tinggi. Berfungsi baik sebagai pra-pemrosesan penghalus derau, tetapi sebagai metode tunggal mengaburkan batas tepi pisang.`,
+        code: `blurred = ndimage.gaussian_filter(gray, sigma=3)`
+      },
+      {
+        rank: 12,
+        name: `Deteksi Tepi Roberts`,
+        category: `Deteksi Tepi`,
+        mentah: 58.0,
+        matang: 62.0,
+        terlaluMatang: 53.0,
+        busuk: 45.0,
+        iou: 0.436,
+        isBest: false,
+        desc: `Operator gradien silang 2×2 yang sangat cepat namun sangat peka terhadap derau dan pantulan cahaya spekular, menghasilkan IoU terendah pada spesimen busuk.`,
+        code: `edge_roberts = filters.roberts(gray)`
+      }
+    ];
+
+    const HYBRID_METHODS_RAW = [
+      {
+        rank: 1,
+        name: `Campuran Hibrid Preprocessing + HSV + Otsu + Morfologi`,
+        pipelineType: `4-Tahap Hibrid`,
+        components: [`Preprocessing`, `HSV`, `Otsu`, `Morfologi`],
+        mentah: 97.5,
+        matang: 100.0,
+        terlaluMatang: 96.5,
+        busuk: 93.6,
+        iou: 0.934,
+        isBest: true,
+        recommendation: `Direkomendasikan Utama`,
+        desc: `Menggabungkan Gaussian filtering (Pertemuan 3) untuk meredam noise tekstur, konversi ruang warna HSV (Pertemuan 1 & 6) untuk mengisolasi spektrum hijau–kuning–coklat, thresholding Otsu otomatis (Pertemuan 6), serta operasi morfologi Opening dan Closing (Pertemuan 5) untuk menutup lubang akibat bercak busuk.`,
+        code: `blur = cv2.GaussianBlur(img, (5, 5), 0)\nhsv  = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)\n_, mask_otsu = cv2.threshold(hsv[:,:,1], 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)\nclean = cv2.morphologyEx(mask_otsu, cv2.MORPH_CLOSE, kernel_5x5)`
+      },
+      {
+        rank: 2,
+        name: `HSV + Multilevel Thresholding + Morfologi Closing`,
+        pipelineType: `3-Tahap Segmentasi + Morfologi`,
+        components: [`HSV`, `Multilevel`, `Morfologi`],
+        mentah: 94.0,
+        matang: 97.0,
+        terlaluMatang: 92.5,
+        busuk: 88.5,
+        iou: 0.896,
+        isBest: false,
+        recommendation: `Alternatif Kuat`,
+        desc: `Memetakan citra ke ruang warna HSV, mempartisi menjadi 3 level ambang intensitas, lalu menutup celah internal dengan Closing morfologi.`,
+        code: `hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)\nthresh = threshold_multiotsu(hsv[:,:,1], classes=3)\nclosed = cv2.morphologyEx((hsv[:,:,1] > thresh[0]).astype(np.uint8)*255, cv2.MORPH_CLOSE, kernel)`
+      },
+      {
+        rank: 3,
+        name: `Ruang Warna L*a*b* + K-Means Clustering + GLCM`,
+        pipelineType: `4-Tahap Hibrid`,
+        components: [`L*a*b*`, `K-Means`, `GLCM`],
+        mentah: 91.5,
+        matang: 95.0,
+        terlaluMatang: 91.5,
+        busuk: 90.0,
+        iou: 0.881,
+        isBest: false,
+        recommendation: `Alternatif Kuat`,
+        desc: `Mengadaptasi alur penelitian RESTI: pra-pemrosesan ke L*a*b* untuk stabilitas krominan, klasterisasi K-Means pada kanal a*b*, dan ekstraksi 6 fitur bentuk–tekstur GLCM.`,
+        code: `lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)\n# K-Means pada kanal a*b* + ekstraksi GLCM (contrast, correlation, energy, homogeneity)`
+      },
+      {
+        rank: 4,
+        name: `Gaussian Filter + Otsu Thresholding + Ekstraksi Bentuk`,
+        pipelineType: `3-Tahap Pra-proses + Fitur`,
+        components: [`Preprocessing`, `Otsu`, `Bentuk`],
+        mentah: 90.0,
+        matang: 94.0,
+        terlaluMatang: 88.0,
+        busuk: 82.0,
+        iou: 0.854,
+        isBest: false,
+        recommendation: `Alternatif Kuat`,
+        desc: `Penghalusan Gaussian sebelum pengambangan Otsu mengurangi tepi bergerigi sehingga ekstraksi area, keliling, dan circularity menjadi lebih akurat.`,
+        code: `blur = cv2.GaussianBlur(gray, (5, 5), 0)\n_, mask = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)\ncontours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)`
+      },
+      {
+        rank: 5,
+        name: `Contrast Stretching + Adaptive Thresholding + Opening`,
+        pipelineType: `3-Tahap Segmentasi + Morfologi`,
+        components: [`Preprocessing`, `Adaptive`, `Morfologi`],
+        mentah: 88.5,
+        matang: 92.5,
+        terlaluMatang: 86.5,
+        busuk: 80.5,
+        iou: 0.837,
+        isBest: false,
+        recommendation: `Kondisional`,
+        desc: `Peregangan kontras (Pertemuan 2) memperluas rentang keabuan sebelum ambang adaptif dan Opening membersihkan bintik latar.`,
+        code: `p2, p98 = np.percentile(gray, (2, 98))\nstretched = exposure.rescale_intensity(gray, in_range=(p2, p98))\nopened = cv2.morphologyEx(adapt_mask, cv2.MORPH_OPEN, kernel)`
+      },
+      {
+        rank: 6,
+        name: `HSV Color Mask + Canny Edge + Contour Following`,
+        pipelineType: `3-Tahap Pra-proses + Fitur`,
+        components: [`HSV`, `Canny`, `Kontur`],
+        mentah: 87.0,
+        matang: 91.0,
+        terlaluMatang: 84.0,
+        busuk: 78.0,
+        iou: 0.812,
+        isBest: false,
+        recommendation: `Kondisional`,
+        desc: `Masking HSV membatasi wilayah kandidat sebelum Canny dan pelacakan kontur Moore mengekstrak batas luar pisang.`,
+        code: `mask = cv2.inRange(hsv, low, high)\nedges = cv2.Canny(cv2.bitwise_and(gray, gray, mask=mask), 60, 160)`
+      },
+      {
+        rank: 7,
+        name: `Median Filter + Otsu Thresholding + GLCM Tekstur`,
+        pipelineType: `3-Tahap Pra-proses + Fitur`,
+        components: [`Preprocessing`, `Otsu`, `GLCM`],
+        mentah: 84.0,
+        matang: 88.0,
+        terlaluMatang: 86.0,
+        busuk: 80.0,
+        iou: 0.806,
+        isBest: false,
+        recommendation: `Kondisional`,
+        desc: `Filter median non-linier menjaga ketajaman tepi sambil menghilangkan noise salt-and-pepper sebelum Otsu dan pengukuran tekstur GLCM.`,
+        code: `med = cv2.medianBlur(gray, 5)\n_, mask = cv2.threshold(med, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)`
+      },
+      {
+        rank: 8,
+        name: `Low-Pass Filter + Konversi Biner + Morfologi`,
+        pipelineType: `3-Tahap Segmentasi + Morfologi`,
+        components: [`Preprocessing`, `Morfologi`],
+        mentah: 82.0,
+        matang: 86.0,
+        terlaluMatang: 80.0,
+        busuk: 74.0,
+        iou: 0.768,
+        isBest: false,
+        recommendation: `Kondisional`,
+        desc: `Mengikuti kerangka studi perbandingan Sistemasi (Pertemuan 4) yang memadukan penapisan lolos-bawah, binerisasi, dan perbaikan morfologi.`,
+        code: `lp = cv2.blur(gray, (5, 5))\n_, bin_img = cv2.threshold(lp, 127, 255, cv2.THRESH_BINARY_INV)\nres = cv2.morphologyEx(bin_img, cv2.MORPH_CLOSE, kernel)`
+      },
+      {
+        rank: 9,
+        name: `Sobel Edge + Dilasi-Erosi + Ekstraksi Fitur Bentuk`,
+        pipelineType: `3-Tahap Pra-proses + Fitur`,
+        components: [`Sobel`, `Morfologi`, `Bentuk`],
+        mentah: 79.0,
+        matang: 83.0,
+        terlaluMatang: 76.0,
+        busuk: 68.0,
+        iou: 0.724,
+        isBest: false,
+        recommendation: `Kondisional`,
+        desc: `Menghubungkan garis tepi Sobel yang terputus memakai dilasi–erosi (Closing) agar kontur tertutup dapat diukur luasnya.`,
+        code: `grad = filters.sobel(gray)\nclosed = cv2.morphologyEx((grad > 0.08).astype(np.uint8)*255, cv2.MORPH_CLOSE, kernel)`
+      },
+      {
+        rank: 10,
+        name: `Grayscale + Histogram Equalization + Roberts Edge`,
+        pipelineType: `2-Tahap Dasar`,
+        components: [`Preprocessing`, `Roberts`],
+        mentah: 73.0,
+        matang: 77.0,
+        terlaluMatang: 70.0,
+        busuk: 62.0,
+        iou: 0.648,
+        isBest: false,
+        recommendation: `Dasar / Pembanding`,
+        desc: `Kombinasi ringan berbasis konversi luminansi RGB ke Grayscale, pemerataan histogram, dan operator gradien Roberts 2×2.`,
+        code: `eq = cv2.equalizeHist(gray)\nedge = filters.roberts(eq)`
+      }
+    ];
+
+    // Enrich datasets dynamically so overall = exact mean of 4 conditions
+    function computeIouClassSingle(iou) {
+      if (iou >= 0.80) return `Sangat Baik`;
+      if (iou >= 0.65) return `Baik`;
+      if (iou >= 0.50) return `Cukup`;
+      return `Rendah`;
+    }
+
+    function computeIouClassHybrid(iou) {
+      if (iou >= 0.85) return `Sangat Baik`;
+      if (iou >= 0.75) return `Baik`;
+      return `Cukup`;
+    }
+
+    function getBestStageName(row) {
+      const pairs = [
+        { k: `Mentah`, v: row.mentah },
+        { k: `Matang`, v: row.matang },
+        { k: `Terlalu Matang`, v: row.terlaluMatang },
+        { k: `Busuk`, v: row.busuk }
+      ];
+      pairs.sort((a, b) => b.v - a.v);
+      return `${pairs[0].k} (${formatPct(pairs[0].v)})`;
+    }
+
+    const SINGLE_METHODS = SINGLE_METHODS_RAW.map(item => {
+      const overall = Number(((item.mentah + item.matang + item.terlaluMatang + item.busuk) / 4).toFixed(1));
+      const successCount = Math.round((overall / 100) * 16);
+      const iouClass = computeIouClassSingle(item.iou);
+      const status = overall >= 80 ? `Optimal` : (overall >= 68 ? `Layak` : `Perlu Pra-pemrosesan`);
+      return {
+        ...item,
+        kind: `single`,
+        overall,
+        successCount,
+        iouClass,
+        status,
+        bestStage: getBestStageName(item)
+      };
+    });
+
+    const BEST_SINGLE_OVERALL = SINGLE_METHODS[0].overall; // 86.0
+
+    const HYBRID_METHODS = HYBRID_METHODS_RAW.map(item => {
+      const overall = Number(((item.mentah + item.matang + item.terlaluMatang + item.busuk) / 4).toFixed(1));
+      const vals = [item.mentah, item.matang, item.terlaluMatang, item.busuk];
+      const spread = Number((Math.max(...vals) - Math.min(...vals)).toFixed(1));
+      const deltaVsOtsu = Number((overall - BEST_SINGLE_OVERALL).toFixed(1));
+      const iouClass = computeIouClassHybrid(item.iou);
+      return {
+        ...item,
+        kind: `hybrid`,
+        overall,
+        spread,
+        deltaVsOtsu,
+        iouClass
+      };
+    });
+
+    // Global state
+    const state = {
+      activeTargetView: `all`,
+      globalSearch: ``,
+      conditionHighlight: `all`,
+      chartMode: `conditions`,
+      sideTab: `inspector`,
+      selectedMethodKey: `hybrid-1`,
+      sort: {
+        1: { col: `rank`, dir: `asc` },
+        2: { col: `rank`, dir: `asc` },
+        3: { col: `overall`, dir: `desc` },
+        4: { col: `overall`, dir: `desc` }
+      }
+    };
+
+    let chartInstance = null;
+
+    // Formatting helpers (Indonesian locale commas)
+    function formatPct(num) {
+      return num.toFixed(1).replace(`.`, `,`) + `%`;
+    }
+
+    function formatIou(num) {
+      return num.toFixed(3).replace(`.`, `,`);
+    }
+
+    function formatSignedPct(num) {
+      const sign = num > 0 ? `+` : ``;
+      return sign + num.toFixed(1).replace(`.`, `,`) + `%`;
+    }
+
+    function getCssToken(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    // Sorting comparator
+    function sortRows(rows, col, dir) {
+      const factor = dir === `asc` ? 1 : -1;
+      return [...rows].sort((a, b) => {
+        const va = a[col];
+        const vb = b[col];
+        if (typeof va === `number` && typeof vb === `number`) {
+          return (va - vb) * factor;
+        }
+        return String(va).localeCompare(String(vb), `id`) * factor;
+      });
+    }
+
+    function updateSortHeaderUI(tableNum) {
+      const current = state.sort[tableNum];
+      const buttons = document.querySelectorAll(`.sort-trigger[data-table="${tableNum}"]`);
+      buttons.forEach(btn => {
+        const col = btn.getAttribute(`data-col`);
+        const arrow = btn.querySelector(`.sort-arrow`);
+        if (col === current.col) {
+          btn.classList.add(`is-sorted`);
+          btn.closest(`th`).setAttribute(`aria-sort`, current.dir === `asc` ? `ascending` : `descending`);
+          if (arrow) arrow.textContent = current.dir === `asc` ? `↑` : `↓`;
+        } else {
+          btn.classList.remove(`is-sorted`);
+          btn.closest(`th`).setAttribute(`aria-sort`, `none`);
+          if (arrow) arrow.textContent = `↕`;
+        }
+      });
+    }
+
+    function sortTable(tableNum, col) {
+      const current = state.sort[tableNum];
+      if (current.col === col) {
+        current.dir = current.dir === `asc` ? `desc` : `asc`;
+      } else {
+        const isNumericDefaultDesc = [`mentah`, `matang`, `terlaluMatang`, `busuk`, `overall`, `iou`, `deltaVsOtsu`, `successCount`].includes(col);
+        current.col = col;
+        current.dir = isNumericDefaultDesc ? `desc` : `asc`;
+      }
+      if (tableNum === 1) updateTable1();
+      if (tableNum === 2) updateTable2();
+      if (tableNum === 3) updateTable3();
+      if (tableNum === 4) updateTable4();
+    }
+
+    // Condition highlight helper
+    function colHighlightClass(colKey) {
+      return state.conditionHighlight === colKey ? `cell-highlight-col` : ``;
+    }
+
+    // Render inline progress cell
+    function renderPctCell(val, isBestRow, colKey) {
+      const fillClass = isBestRow ? `inline-fill--best` : (val < 65 ? `inline-fill--low` : ``);
+      const hl = colHighlightClass(colKey);
+      return `<td class="td-num ${hl}">
+        <div class="bar-cell">
+          <span>${formatPct(val)}</span>
+          <span class="inline-track" aria-hidden="true"><span class="inline-fill ${fillClass}" style="width:${Math.min(100, val)}%"></span></span>
+        </div>
+      </td>`;
+    }
+
+    function renderIouBadge(iouClass) {
+      if (iouClass === `Sangat Baik`) return `<span class="tag tag--positive">Sangat Baik</span>`;
+      if (iouClass === `Baik`) return `<span class="tag">Baik</span>`;
+      if (iouClass === `Cukup`) return `<span class="tag tag--warning">Cukup</span>`;
+      return `<span class="tag tag--error">Rendah</span>`;
+    }
+
+    // Table 1: Single Methods per Condition
+    function updateTable1() {
+      const searchEl = document.getElementById(`t1-search`);
+      const catEl = document.getElementById(`t1-cat`);
+      const minEl = document.getElementById(`t1-min`);
+      const tbody = document.getElementById(`tbody-1`);
+      const empty = document.getElementById(`empty-1`);
+      const countEl = document.getElementById(`t1-count`);
+      if (!tbody || !empty) return;
+
+      const localQuery = (searchEl ? searchEl.value : ``).trim().toLowerCase();
+      const globalQuery = state.globalSearch.trim().toLowerCase();
+      const cat = catEl ? catEl.value : `all`;
+      const minFilter = minEl ? minEl.value : `0`;
+
+      let rows = SINGLE_METHODS.filter(r => {
+        const text = `${r.name} ${r.category} ${r.bestStage}`.toLowerCase();
+        if (localQuery && !text.includes(localQuery)) return false;
+        if (globalQuery && !text.includes(globalQuery)) return false;
+        if (cat !== `all` && r.category !== cat) return false;
+        if (minFilter === `75` && (r.mentah < 70 || r.matang < 70 || r.terlaluMatang < 70 || r.busuk < 70)) return false;
+        if (minFilter === `80` && r.matang < 85) return false;
+        if (minFilter === `busuk70` && r.busuk < 70) return false;
+        return true;
+      });
+
+      rows = sortRows(rows, state.sort[1].col, state.sort[1].dir);
+      updateSortHeaderUI(1);
+
+      if (countEl) countEl.textContent = `Menampilkan ${rows.length} dari ${SINGLE_METHODS.length} metode`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = ``;
+        empty.classList.remove(`is-hidden`);
+        return;
+      }
+
+      empty.classList.add(`is-hidden`);
+      tbody.innerHTML = rows.map(r => {
+        const key = `single-${r.rank}`;
+        const bestCls = r.isBest ? `is-best-row` : ``;
+        const selCls = state.selectedMethodKey === key ? `is-selected-row` : ``;
+        const badge = r.isBest ? ` <span class="tag" style="margin-left:6px;">Terbaik</span>` : ``;
+        return `<tr class="${bestCls} ${selCls}" onclick="selectMethod('single', ${r.rank})">
+          <td class="td-num">${r.rank}</td>
+          <td class="td-method">${r.name}${badge}</td>
+          <td><span class="tag tag--neutral">${r.category}</span></td>
+          ${renderPctCell(r.mentah, r.isBest, `mentah`)}
+          ${renderPctCell(r.matang, r.isBest, `matang`)}
+          ${renderPctCell(r.terlaluMatang, r.isBest, `terlaluMatang`)}
+          ${renderPctCell(r.busuk, r.isBest, `busuk`)}
+          <td class="mono-num">${r.bestStage}</td>
+        </tr>`;
+      }).join(``);
+    }
+
+    // Table 2: Hybrid Methods per Condition
+    function updateTable2() {
+      const searchEl = document.getElementById(`t2-search`);
+      const catEl = document.getElementById(`t2-cat`);
+      const minEl = document.getElementById(`t2-min`);
+      const tbody = document.getElementById(`tbody-2`);
+      const empty = document.getElementById(`empty-2`);
+      const countEl = document.getElementById(`t2-count`);
+      if (!tbody || !empty) return;
+
+      const localQuery = (searchEl ? searchEl.value : ``).trim().toLowerCase();
+      const globalQuery = state.globalSearch.trim().toLowerCase();
+      const cat = catEl ? catEl.value : `all`;
+      const minFilter = minEl ? minEl.value : `0`;
+
+      let rows = HYBRID_METHODS.filter(r => {
+        const text = `${r.name} ${r.pipelineType} ${r.components.join(` `)}`.toLowerCase();
+        if (localQuery && !text.includes(localQuery)) return false;
+        if (globalQuery && !text.includes(globalQuery)) return false;
+        if (cat !== `all` && r.pipelineType !== cat) return false;
+        if (minFilter === `all85` && (r.mentah < 85 || r.matang < 85 || r.terlaluMatang < 85 || r.busuk < 85)) return false;
+        if (minFilter === `busuk85` && r.busuk < 85) return false;
+        if (minFilter === `matang95` && r.matang < 95) return false;
+        return true;
+      });
+
+      rows = sortRows(rows, state.sort[2].col, state.sort[2].dir);
+      updateSortHeaderUI(2);
+
+      if (countEl) countEl.textContent = `Menampilkan ${rows.length} dari ${HYBRID_METHODS.length} metode`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = ``;
+        empty.classList.remove(`is-hidden`);
+        return;
+      }
+
+      empty.classList.add(`is-hidden`);
+      tbody.innerHTML = rows.map(r => {
+        const key = `hybrid-${r.rank}`;
+        const bestCls = r.isBest ? `is-best-row` : ``;
+        const selCls = state.selectedMethodKey === key ? `is-selected-row` : ``;
+        const badge = r.isBest ? ` <span class="tag tag--positive" style="margin-left:6px;">Terbaik</span>` : ``;
+        return `<tr class="${bestCls} ${selCls}" onclick="selectMethod('hybrid', ${r.rank})">
+          <td class="td-num">${r.rank}</td>
+          <td class="td-method">${r.name}${badge}</td>
+          <td><span class="tag tag--neutral">${r.pipelineType}</span></td>
+          ${renderPctCell(r.mentah, r.isBest, `mentah`)}
+          ${renderPctCell(r.matang, r.isBest, `matang`)}
+          ${renderPctCell(r.terlaluMatang, r.isBest, `terlaluMatang`)}
+          ${renderPctCell(r.busuk, r.isBest, `busuk`)}
+          <td class="td-num">± ${formatPct(r.spread)}</td>
+        </tr>`;
+      }).join(``);
+    }
+
+    // Table 3: Single Methods Overall & IoU
+    function updateTable3() {
+      const searchEl = document.getElementById(`t3-search`);
+      const catEl = document.getElementById(`t3-cat`);
+      const iouEl = document.getElementById(`t3-iou`);
+      const tbody = document.getElementById(`tbody-3`);
+      const empty = document.getElementById(`empty-3`);
+      const countEl = document.getElementById(`t3-count`);
+      if (!tbody || !empty) return;
+
+      const localQuery = (searchEl ? searchEl.value : ``).trim().toLowerCase();
+      const globalQuery = state.globalSearch.trim().toLowerCase();
+      const cat = catEl ? catEl.value : `all`;
+      const iouFilter = iouEl ? iouEl.value : `all`;
+
+      let rows = SINGLE_METHODS.filter(r => {
+        const text = `${r.name} ${r.category} ${r.iouClass} ${r.status}`.toLowerCase();
+        if (localQuery && !text.includes(localQuery)) return false;
+        if (globalQuery && !text.includes(globalQuery)) return false;
+        if (cat !== `all` && r.category !== cat) return false;
+        if (iouFilter !== `all` && r.iouClass !== iouFilter) return false;
+        return true;
+      });
+
+      rows = sortRows(rows, state.sort[3].col, state.sort[3].dir);
+      updateSortHeaderUI(3);
+
+      if (countEl) countEl.textContent = `Menampilkan ${rows.length} dari ${SINGLE_METHODS.length} metode`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = ``;
+        empty.classList.remove(`is-hidden`);
+        return;
+      }
+
+      empty.classList.add(`is-hidden`);
+      tbody.innerHTML = rows.map(r => {
+        const key = `single-${r.rank}`;
+        const bestCls = r.isBest ? `is-best-row` : ``;
+        const selCls = state.selectedMethodKey === key ? `is-selected-row` : ``;
+        const badge = r.isBest ? ` <span class="tag" style="margin-left:6px;">Terbaik</span>` : ``;
+        return `<tr class="${bestCls} ${selCls}" onclick="selectMethod('single', ${r.rank})">
+          <td class="td-num">#${r.rank}</td>
+          <td class="td-method">${r.name}${badge}</td>
+          <td><span class="tag tag--neutral">${r.category}</span></td>
+          ${renderPctCell(r.overall, r.isBest, `overall`)}
+          <td class="td-num" style="font-weight: 500;">${formatIou(r.iou)}</td>
+          <td>${renderIouBadge(r.iouClass)}</td>
+          <td class="td-num">${r.successCount} / 16</td>
+          <td>${r.status}</td>
+        </tr>`;
+      }).join(``);
+    }
+
+    // Table 4: Hybrid Methods Overall & IoU
+    function updateTable4() {
+      const searchEl = document.getElementById(`t4-search`);
+      const compEl = document.getElementById(`t4-comp`);
+      const iouEl = document.getElementById(`t4-iou`);
+      const tbody = document.getElementById(`tbody-4`);
+      const empty = document.getElementById(`empty-4`);
+      const countEl = document.getElementById(`t4-count`);
+      if (!tbody || !empty) return;
+
+      const localQuery = (searchEl ? searchEl.value : ``).trim().toLowerCase();
+      const globalQuery = state.globalSearch.trim().toLowerCase();
+      const comp = compEl ? compEl.value : `all`;
+      const iouFilter = iouEl ? iouEl.value : `all`;
+
+      let rows = HYBRID_METHODS.filter(r => {
+        const text = `${r.name} ${r.pipelineType} ${r.components.join(` `)} ${r.recommendation}`.toLowerCase();
+        if (localQuery && !text.includes(localQuery)) return false;
+        if (globalQuery && !text.includes(globalQuery)) return false;
+        if (comp !== `all` && !r.components.includes(comp)) return false;
+        if (iouFilter !== `all` && r.iouClass !== iouFilter) return false;
+        return true;
+      });
+
+      rows = sortRows(rows, state.sort[4].col, state.sort[4].dir);
+      updateSortHeaderUI(4);
+
+      if (countEl) countEl.textContent = `Menampilkan ${rows.length} dari ${HYBRID_METHODS.length} metode`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = ``;
+        empty.classList.remove(`is-hidden`);
+        return;
+      }
+
+      empty.classList.add(`is-hidden`);
+      tbody.innerHTML = rows.map(r => {
+        const key = `hybrid-${r.rank}`;
+        const bestCls = r.isBest ? `is-best-row` : ``;
+        const selCls = state.selectedMethodKey === key ? `is-selected-row` : ``;
+        const badge = r.isBest ? ` <span class="tag tag--positive" style="margin-left:6px;">Terbaik</span>` : ``;
+        const deltaColor = r.deltaVsOtsu >= 0 ? `color: var(--tertiary);` : `color: var(--error);`;
+        return `<tr class="${bestCls} ${selCls}" onclick="selectMethod('hybrid', ${r.rank})">
+          <td class="td-num">#${r.rank}</td>
+          <td class="td-method">${r.name}${badge}</td>
+          <td><span class="tag tag--neutral">${r.pipelineType}</span></td>
+          ${renderPctCell(r.overall, r.isBest, `overall`)}
+          <td class="td-num" style="font-weight: 500;">${formatIou(r.iou)}</td>
+          <td class="td-num" style="${deltaColor} font-weight: 500;">${formatSignedPct(r.deltaVsOtsu)}</td>
+          <td>${renderIouBadge(r.iouClass)}</td>
+          <td>${r.recommendation}</td>
+        </tr>`;
+      }).join(``);
+    }
+
+    function updateAllTables() {
+      updateTable1();
+      updateTable2();
+      updateTable3();
+      updateTable4();
+    }
+
+    // Filter reset functions
+    function resetTableFilter(tableNum) {
+      if (tableNum === 1) {
+        const s = document.getElementById(`t1-search`);
+        const c = document.getElementById(`t1-cat`);
+        const m = document.getElementById(`t1-min`);
+        if (s) s.value = ``;
+        if (c) c.value = `all`;
+        if (m) m.value = `0`;
+        updateTable1();
+      } else if (tableNum === 2) {
+        const s = document.getElementById(`t2-search`);
+        const c = document.getElementById(`t2-cat`);
+        const m = document.getElementById(`t2-min`);
+        if (s) s.value = ``;
+        if (c) c.value = `all`;
+        if (m) m.value = `0`;
+        updateTable2();
+      } else if (tableNum === 3) {
+        const s = document.getElementById(`t3-search`);
+        const c = document.getElementById(`t3-cat`);
+        const i = document.getElementById(`t3-iou`);
+        if (s) s.value = ``;
+        if (c) c.value = `all`;
+        if (i) i.value = `all`;
+        updateTable3();
+      } else if (tableNum === 4) {
+        const s = document.getElementById(`t4-search`);
+        const c = document.getElementById(`t4-comp`);
+        const i = document.getElementById(`t4-iou`);
+        if (s) s.value = ``;
+        if (c) c.value = `all`;
+        if (i) i.value = `all`;
+        updateTable4();
+      }
+    }
+
+    function applyGlobalSearch(val) {
+      state.globalSearch = val || ``;
+      updateAllTables();
+    }
+
+    function setConditionHighlight(val) {
+      state.conditionHighlight = val || `all`;
+      updateTable1();
+      updateTable2();
+    }
+
+    function resetAllFilters() {
+      state.globalSearch = ``;
+      state.conditionHighlight = `all`;
+      const gs = document.getElementById(`global-search`);
+      const gc = document.getElementById(`global-condition-focus`);
+      if (gs) gs.value = ``;
+      if (gc) gc.value = `all`;
+      resetTableFilter(1);
+      resetTableFilter(2);
+      resetTableFilter(3);
+      resetTableFilter(4);
+      setActiveTargetView(`all`);
+    }
+
+    // Target view tabs
+    function setActiveTargetView(view) {
+      state.activeTargetView = view;
+      const tabs = [`all`, `t1`, `t2`, `t3`, `t4`];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (btn) btn.classList.toggle(`is-active`, t === view);
+      });
+
+      const sections = [`t1`, `t2`, `t3`, `t4`];
+      sections.forEach(s => {
+        const sec = document.getElementById(`section-${s}`);
+        if (!sec) return;
+        if (view === `all` || view === s) {
+          sec.classList.remove(`is-hidden`);
+        } else {
+          sec.classList.add(`is-hidden`);
+        }
+      });
+    }
+
+    // Side panel switcher & Method Inspector
+    function switchSideTab(tab) {
+      state.sideTab = tab;
+      const btnInsp = document.getElementById(`btn-side-inspector`);
+      const btnSpec = document.getElementById(`btn-side-specimens`);
+      const panInsp = document.getElementById(`side-panel-inspector`);
+      const panSpec = document.getElementById(`side-panel-specimens`);
+
+      if (btnInsp) btnInsp.classList.toggle(`is-active`, tab === `inspector`);
+      if (btnSpec) btnSpec.classList.toggle(`is-active`, tab === `specimens`);
+      if (panInsp) panInsp.classList.toggle(`is-hidden`, tab !== `inspector`);
+      if (panSpec) panSpec.classList.toggle(`is-hidden`, tab !== `specimens`);
+    }
+
+    function selectMethod(kind, rank) {
+      state.selectedMethodKey = `${kind}-${rank}`;
+      const list = kind === `single` ? SINGLE_METHODS : HYBRID_METHODS;
+      const method = list.find(m => m.rank === rank);
+      if (!method) return;
+
+      switchSideTab(`inspector`);
+
+      const typeEl = document.getElementById(`insp-type`);
+      const nameEl = document.getElementById(`insp-name`);
+      const badgeEl = document.getElementById(`insp-badge`);
+      const ovEl = document.getElementById(`insp-overall`);
+      const iouEl = document.getElementById(`insp-iou`);
+      const descEl = document.getElementById(`insp-desc`);
+      const codeEl = document.getElementById(`insp-code`);
+
+      if (typeEl) {
+        typeEl.textContent = kind === `single`
+          ? `METODE TUNGGAL · PERINGKAT #${method.rank} · ${method.category.toUpperCase()}`
+          : `METODE CAMPURAN · PERINGKAT #${method.rank} · ${method.pipelineType.toUpperCase()}`;
+      }
+      if (nameEl) nameEl.textContent = method.name;
+      if (badgeEl) {
+        badgeEl.textContent = method.isBest ? `Terbaik` : method.iouClass;
+        badgeEl.className = method.isBest ? `tag tag--positive` : `tag tag--neutral`;
+      }
+      if (ovEl) ovEl.textContent = formatPct(method.overall);
+      if (iouEl) iouEl.textContent = formatIou(method.iou);
+      if (descEl) descEl.textContent = method.desc;
+      if (codeEl) codeEl.textContent = method.code;
+
+      updateAllTables();
+    }
+
+    // Specimens inventory rendering
+    function renderSpecimens() {
+      const filterEl = document.getElementById(`specimen-stage-filter`);
+      const listEl = document.getElementById(`specimen-list`);
+      if (!listEl) return;
+
+      const stage = filterEl ? filterEl.value : `all`;
+      const filtered = stage === `all` ? SPECIMENS : SPECIMENS.filter(s => s.stage === stage);
+
+      listEl.innerHTML = filtered.map(s => {
+        return `<div class="specimen-item">
+          <span class="specimen-swatch ${s.swatchClass}" aria-hidden="true"></span>
+          <div>
+            <div class="specimen-file" title="${s.file}">${s.file}</div>
+            <div class="specimen-meta">${s.stage} · ${s.device} · ${s.day}/${s.frame} (${s.side}) · ${s.res}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="mono-num" style="font-size:0.75rem; font-weight:500; color:var(--tertiary);">Hibrid: ${s.hybridScore}</div>
+            <div class="mono-num" style="font-size:0.75rem; color:var(--on-surface-variant);">Otsu: ${s.otsuScore}</div>
+          </div>
+        </div>`;
+      }).join(``);
+    }
+
+    // Chart.js rendering using Carbon tokens
+    function switchChartMode(mode) {
+      state.chartMode = mode;
+      const b1 = document.getElementById(`btn-chart-cond`);
+      const b2 = document.getElementById(`btn-chart-scatter`);
+      if (b1) b1.classList.toggle(`is-active`, mode === `conditions`);
+      if (b2) b2.classList.toggle(`is-active`, mode === `scatter`);
+      renderChart();
+    }
+
+    function renderChart() {
+      const canvas = document.getElementById(`performance-chart`);
+      const titleEl = document.getElementById(`chart-title`);
+      const subEl = document.getElementById(`chart-subtitle`);
+      const capEl = document.getElementById(`chart-caption`);
+      if (!canvas || typeof Chart === `undefined`) return;
+
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+
+      const cPrimary = getCssToken(`--data-1`) || `#0f62fe`;
+      const cPurple = getCssToken(`--data-2`) || `#6929c4`;
+      const cTeal = getCssToken(`--data-3`) || `#005d5d`;
+      const cContext = getCssToken(`--data-context`) || `#8d8d8d`;
+      const cGrid = getCssToken(`--outline-variant`) || `#e0e0e0`;
+      const cInk = getCssToken(`--on-surface`) || `#161616`;
+      const cMuted = getCssToken(`--on-surface-variant`) || `#525252`;
+      const fontMono = `'IBM Plex Mono', monospace`;
+      const fontSans = `'IBM Plex Sans', sans-serif`;
+
+      if (state.chartMode === `conditions`) {
+        if (titleEl) titleEl.textContent = `Perbandingan Keberhasilan per Kondisi Kematangan (%)`;
+        if (subEl) subEl.textContent = `HIBRID TERBAIK VS OTSU TUNGGAL VS RATA-RATA 12 METODE TUNGGAL`;
+        if (capEl) {
+          capEl.innerHTML = `Pada kondisi <strong>Matang (H11)</strong>, pemisahan warna kuning terhadap latar belakang memaksimalkan performa hingga 100,0% dengan metode campuran hibrid. Penurunan terjadi pada fase <strong>Busuk (H17)</strong> akibat bercak gelap nekrosis yang menurunkan stabilitas deteksi tepi tunggal.`;
+        }
+
+        const avgSingle = {
+          mentah: Number((SINGLE_METHODS.reduce((s, r) => s + r.mentah, 0) / SINGLE_METHODS.length).toFixed(1)),
+          matang: Number((SINGLE_METHODS.reduce((s, r) => s + r.matang, 0) / SINGLE_METHODS.length).toFixed(1)),
+          terlaluMatang: Number((SINGLE_METHODS.reduce((s, r) => s + r.terlaluMatang, 0) / SINGLE_METHODS.length).toFixed(1)),
+          busuk: Number((SINGLE_METHODS.reduce((s, r) => s + r.busuk, 0) / SINGLE_METHODS.length).toFixed(1))
+        };
+
+        const bestHybrid = HYBRID_METHODS[0];
+        const bestSingle = SINGLE_METHODS[0];
+
+        chartInstance = new Chart(canvas.getContext(`2d`), {
+          type: `bar`,
+          data: {
+            labels: [`Mentah (H1)`, `Matang (H11)`, `Terlalu Matang (H15)`, `Busuk (H17)`],
+            datasets: [
+              {
+                label: `Hibrid: Prep + HSV + Otsu + Morfologi`,
+                data: [bestHybrid.mentah, bestHybrid.matang, bestHybrid.terlaluMatang, bestHybrid.busuk],
+                backgroundColor: cPrimary,
+                borderRadius: 0,
+                barPercentage: 0.78,
+                categoryPercentage: 0.72
+              },
+              {
+                label: `Tunggal Terbaik: Otsu Thresholding`,
+                data: [bestSingle.mentah, bestSingle.matang, bestSingle.terlaluMatang, bestSingle.busuk],
+                backgroundColor: cTeal,
+                borderRadius: 0,
+                barPercentage: 0.78,
+                categoryPercentage: 0.72
+              },
+              {
+                label: `Rata-rata 12 Metode Tunggal`,
+                data: [avgSingle.mentah, avgSingle.matang, avgSingle.terlaluMatang, avgSingle.busuk],
+                backgroundColor: cContext,
+                borderRadius: 0,
+                barPercentage: 0.78,
+                categoryPercentage: 0.72
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: `top`,
+                align: `start`,
+                labels: {
+                  boxWidth: 12,
+                  boxHeight: 12,
+                  color: cInk,
+                  font: { family: fontSans, size: 12 }
+                }
+              },
+              tooltip: {
+                backgroundColor: `#ffffff`,
+                titleColor: cInk,
+                bodyColor: cInk,
+                borderColor: cGrid,
+                borderWidth: 1,
+                cornerRadius: 0,
+                titleFont: { family: fontSans, weight: `600` },
+                bodyFont: { family: fontMono, size: 12 },
+                callbacks: {
+                  label: ctx => `${ctx.dataset.label}: ${formatPct(ctx.parsed.y)}`
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: { color: cMuted, font: { family: fontMono, size: 11 } }
+              },
+              y: {
+                min: 40,
+                max: 105,
+                grid: { color: cGrid },
+                border: { color: cInk },
+                ticks: {
+                  color: cMuted,
+                  font: { family: fontMono, size: 11 },
+                  callback: v => `${v}%`
+                }
+              }
+            }
+          }
+        });
+      } else {
+        if (titleEl) titleEl.textContent = `Sebaran Keberhasilan Keseluruhan vs Rata-rata IoU`;
+        if (subEl) subEl.textContent = `SELURUH 22 METODE (12 TUNGGAL VS 10 CAMPURAN)`;
+        if (capEl) {
+          capEl.innerHTML = `Korelasi kuat terlihat antara keberhasilan klasifikasi dan kualitas tumpang-tindih spasial (IoU). Metode campuran secara konsisten menduduki kuadran kanan atas (<strong>Keberhasilan &gt; 80%, IoU &gt; 0,76</strong>), memuncak pada <strong>96,9% / 0,934 IoU</strong>.`;
+        }
+
+        const singlePoints = SINGLE_METHODS.map(m => ({ x: m.overall, y: m.iou, label: m.name }));
+        const hybridPoints = HYBRID_METHODS.map(m => ({ x: m.overall, y: m.iou, label: m.name }));
+
+        chartInstance = new Chart(canvas.getContext(`2d`), {
+          type: `scatter`,
+          data: {
+            datasets: [
+              {
+                label: `Metode Campuran (10 Pipeline)`,
+                data: hybridPoints,
+                backgroundColor: cPrimary,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointStyle: `rect`
+              },
+              {
+                label: `Metode Tunggal (12 Algoritma)`,
+                data: singlePoints,
+                backgroundColor: cPurple,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointStyle: `circle`
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: `top`,
+                align: `start`,
+                labels: {
+                  usePointStyle: true,
+                  color: cInk,
+                  font: { family: fontSans, size: 12 }
+                }
+              },
+              tooltip: {
+                backgroundColor: `#ffffff`,
+                titleColor: cInk,
+                bodyColor: cInk,
+                borderColor: cGrid,
+                borderWidth: 1,
+                cornerRadius: 0,
+                bodyFont: { family: fontMono, size: 12 },
+                callbacks: {
+                  label: ctx => {
+                    const raw = ctx.raw;
+                    return `${raw.label} — Berhasil: ${formatPct(raw.x)}, IoU: ${formatIou(raw.y)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                min: 50,
+                max: 100,
+                title: {
+                  display: true,
+                  text: `KEBERHASILAN KESELURUHAN (%)`,
+                  color: cMuted,
+                  font: { family: fontMono, size: 11 }
+                },
+                grid: { color: cGrid },
+                ticks: {
+                  color: cMuted,
+                  font: { family: fontMono, size: 11 },
+                  callback: v => `${v}%`
+                }
+              },
+              y: {
+                min: 0.4,
+                max: 1.0,
+                title: {
+                  display: true,
+                  text: `RATA-RATA IoU`,
+                  color: cMuted,
+                  font: { family: fontMono, size: 11 }
+                },
+                grid: { color: cGrid },
+                ticks: {
+                  color: cMuted,
+                  font: { family: fontMono, size: 11 },
+                  callback: v => Number(v).toFixed(2).replace(`.`, `,`)
+                }
+              }
+            }
+          }
+        });
+      }
+    }
+
+    // Boot initialization
+    document.addEventListener(`DOMContentLoaded`, function initDashboard() {
+      renderSpecimens();
+      updateAllTables();
+      renderChart();
+      if (typeof lucide !== `undefined` && lucide.createIcons) {
+        lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

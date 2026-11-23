@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: banana-ripeness
+Version: 1.0.0
+Summary: Sistem Deteksi Tingkat Kematangan Pisang Berbasis Pipeline Hibrid
+Author: Banana Ripeness Team
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: opencv-python>=4.8.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: scikit-image>=0.21.0
+Requires-Dist: scikit-learn>=1.3.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: matplotlib>=3.7.0
+Requires-Dist: pyyaml>=6.0

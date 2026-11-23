@@ -1,0 +1,46 @@
+device:
+  use_gpu: true               # Akselerasi GPU via OpenCV OpenCL (Intel Iris Xe Graphics)
+  device_type: "gpu"          # "gpu" atau "cpu"
+
+image:
+  size: [600, 600]
+
+preprocessing:
+  gaussian_kernel: [5, 5]
+  gaussian_sigma: 0
+  contrast_stretch: true
+  stretch_percentiles: [2, 98]
+
+segmentation:
+  hsv_lower: [0, 20, 20]
+  hsv_upper: [100, 255, 255]
+  otsu_channel: "S"           # "S" atau "V"
+  combine_mode: "or"          # "or" atau "and"
+  auto_invert_otsu: true
+
+morphology:
+  kernel_shape: "ellipse"     # "ellipse", "rect", atau "cross"
+  kernel_size: [5, 5]
+  open_iterations: 1
+  close_iterations: 3
+  keep_largest_component: true
+  fill_holes: true
+
+features:
+  green_hue_range: [36, 85]
+  yellow_hue_range: [20, 35]
+  brown_hue_range: [0, 22]
+  brown_max_v: 110
+  brown_min_s: 20
+
+classification:
+  hue_green_max: 35
+  hue_yellow_max: 28
+  green_ratio_unripe: 0.35
+  yellow_ratio_ripe: 0.40
+  brown_ratio_overripe: 0.40
+  brown_ratio_rotten: 0.70
+  rotten_max_sat: 100.0
+
+evaluation:
+  success_iou_threshold: 0.80
